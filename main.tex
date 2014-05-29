@@ -1,12 +1,16 @@
 \documentclass[12pt,a4paper,titlepage,onecolumn,openany,oneside]{report}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
-\author{Szabó Roland Teodor}
-\title{A system for managing personal finances based on receipts}
+\usepackage{mystyle}
 \begin{document}
-•
+
+\pagestyle{plain}
+\include{./tex/cover}
+
+\pagenumbering{roman} % roman page numbering system
+\include{./tex/toc} % table of contents, list of figures, list of tables
+
+\pagenumbering{arabic} % arabic page numbering system
+% \include{./tex/abstract}
+
+\include{./tex/introduction}
+\include{./tex/probl_statement}
 \end{document}
