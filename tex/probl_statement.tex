@@ -1,8 +1,40 @@
 \chapter{Problem Statement}
 \label{chap:statement}
+
+In this chapter we present the requirements of the ReceiptBudget application and we describe the problems that are part of it. These include the problem of OCR and the problem of data visualization.
+
 \section{Optical Character Recognition}
 \subsection{General OCR}
-\subsection{OCR for Receipts}
+
+The first OCR engines used a set of handwritten rules to identify characters\cite{shepard1971reading}. These were hard to write and performed quite poorly on text written in new fonts. This kind of systems are fine when used on documents that are highly standardized and that always have the same font in the same place, such as passports, bank checks or credit cards. 
+
+More modern OCR engines use a machine learning algorithm to learn the rules by which to classify the characters\cite{smith2007overview}. They are more accurate and can easily learn to identify multiple fonts. While the rules are not handwritten, getting the labeled data for the machine learning algorithm is still a manual and tedious work. 
+
+While the general problem of object recognition is still a difficult one for computers, even though humans do it without a problem, recently there have been several breakthroughs in computer vision that give very good performance, in some cases even better than human, on simpler problems, such as character recognition. 
+
+\subsection{OCR for Receipts. Motivation}
+Usually, an OCR engine has 2 main components: a document layout analysis part and a character recognition part. 
+
+In the case of receipts, the document layout is quite simple: all the text is on horizontal lines, there are no tables, and usually there are no figures. If there are figures, they are usually the logo of the shop, place in the header of the receipt. Identifying the lines can be done quite efficiently by looking at the color histogram of the receipt. 
+
+The character recognition is more complicated. While in a book the letters are almost always well separated and the lines have similar length, receipts are smaller, so they have less space available and everything is compressed as much as possible. This means that many letters end up touching, as show in figure \ref{fig:line}, lines are of uneven length and have different justifications (left, right and center justifications alternate many times in a receipt). This means that before character recognition can be done, lines must be segmented into their composing letters. 
+
+A significant part of the time spent developing ReceiptBudget was spent on finding the best ways to perform the character segmentation and then recognition, using only the data available from the image. 
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{img/linie_bon.jpg}
+\caption{\label{fig:line}
+Example of line where many characters are touching.}
+\end{center}
+\end{figure}
 
 \section{Business Intelligence}
+\textit{Business Intelligence} (BI) is the theory and practice of using technology to transform usually large amounts of raw data into information that can be useful for business purposes. BI can handle enormous amounts of unstructured data to help identify, develop and otherwise create new patterns. With the help of BI, voluminous data can be interpreted in a more user-friendly way. This leads to implementing new and effective strategies that can provide a competitive market advantage and long-term stability to business \cite{rud2009business}.
+
+BI is usually used in businesses as part of their decision support systems, to help them make decisions that are based on data and facts \cite{power2007brief}. They use data collected and stored by businesses in data warehouses and provides mathematical and statistical anlyisis, together with data mining and On-Line Analysis Processing (OLAP). The executives can then query the data, generate reports from it, use it  to evaluate performance metrics and to identify insights and experiences that are relevant business knowledge, often in a collaborative way, from different departements \cite{Ghazanfari20111579}. 
+
+Even though the primary intended users of ReceiptBudget are not businesses, but consumers, many lessons can be taken from the domain of business intelligence on how to process the financial data, extract information from it and present it to the user.  
+
 \subsection{Interactive Dashboards}
+Humans are much better at processing data visually instead of a tabular form and it is easier to notice outliers and variations in the data if the data is plotted on a chart\cite{daniel1959use}.
