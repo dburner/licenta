@@ -1,10 +1,76 @@
 \chapter{Literature Review}
 \label{chap:lit_rev}
+This chapter has two sections. One aims to review past results from literature in the field of optical character recognition and business intelligence. The second one presents the theoretical background of the methods used in the OCR engine. 
+
 \section{Related Work}
 \subsection{OCR}
+Optical character recognition has long been of interest in the computer industry. In 1976, Ray Kurzweil presented in \cite{schantz1982history} an omni-font OCR engine, that together with a speech synthesiser would read texts to blind people. It came together with its own special scanner, that was required for taking the images of pages. 
+
+R. Holley presents in a study\cite{Holley_2009} done to evaluate OCR on australian newspapers that the accuracy of various commercial software on newspapers varies from 71\% to 98\%. A similar study done by E. Klijn in \cite{klijn2008current} on Dutch newspapers reported accuracies varying between 68\% to 99\%, with this number depending mostly on the quality of the image scan and on the state of the newspaper. 
+
+One of the most popular machine learning datasets is the MNIST dataset of handwritten digits\cite{lecun1998mnist}. This dataset contains 60000 examples to be used for training and 10000 to be used as a test set. All the black and white (bilevel) images in this data set were initially size normalized to fit a 20x20 bounding box, while preserving aspect ratio. The resulting images were anti-aliased, which introduced grey levels. In the end, the images were centered in 28x28 image, translating the center of mass of the pixels to the center of the 28x28 image. 
+
+Initial results on the MNIST database, from the paper published by Y. LeCun and L. Bottou in 1998\cite{Lecun_1998}, are summarized in Table \ref{table:mnist_results}. 
+
+\begin{table}[h]
+\caption{Test error rates obtained on MNIST using various algorithms}
+\label{table:mnist_results}
+\begin{tabular}{ll}
+\hline
+Classifier                   & Test error rate \\ \hline
+1-layer neural network       & 12.0 \%           \\
+K-nearest-neighbors          & 5.0  \%           \\
+PCA + quadratic classifier   & 3.3  \%          \\
+SVM with Gaussian Kernel     & 1.4  \%           \\
+2-layer neural network       & 4.7  \%           \\
+3-layer neural network       & 2.45 \%           \\
+Convolutional neural network & 0.95 \%           \\ \hline
+\end{tabular}
+\end{table}
+
+Many improvements have been published on the MNIST dataset. Some of the more recent ones include L. Deng and D. Yu\cite{deng2011deep}, obtaining an error rate of 0.83\%, using a deep convex neural net with unsupervised pre-training. The best result obtained without using committees is D. Ciresan's deep neural network, trained on GPU devices\cite{Cire_an_2010}, that obtained 0.35\% error rate. The current state of the art was obtained by the same group, using a committee of 35 convolutional neural networks, with an error rate of 0.23\%, which beats human performance\cite{2012arXiv1202.2745C}. 
+
+For the character segmentation problem, one approach proposed by S. Lee and D. Lee\cite{Dong_June_Lee} was based on vertical projections of the images. The projections were obtained by counting how many black pixels were in a column and then various criteria were used to determine which columns were candidates for segmentation, based on some threshold values. They obtained results ranging from 85\% to 98\% accuracy, depending on font and alphabet that was used. 
+
+F. Kahraman and B. Kurt used a nonlinear vector quantization to perform the character segmentation\cite{kahraman2003license} with an accuracy of 94.5\% on a set of 2198 license plate characters. 
+
+F. Vojt{\v{e}}ch and H. V{\'{a}}clav presented in \cite{Franc_2005} an approach using Hidden Markov Chains to model the problem of character segmentation in license plates. Without incorporating prior knowledge about the license plate, they got 37\% incorrect segmentations, but by using that knowledge, they managed to get it down to 3.3\%.
+
+B. Janssen and E. Saund have worked on a system called Receipts2Go\cite{janssen2012receipts2go} for extracting information from small documents, including receipts. They presented two improvements to the image normalization process, but for the actual OCR part they used off-the-shelf commercial software. 
+
 \subsection{Dashboards}
 \section{Theoretical Background}
-\subsection{Random Forests}
+
+\subsection{Random forests}
+
+Random forests have been introduced by Leo Breiman and Adele Cutler\cite{breiman2001random} as an ensemble of decision trees. When using only one decision tree to make a classification, one often runs into problems with high variance or high bias. Random forests present a mechanism to avoid these problems to make more accurate models, that generalize better. 
+
+According to their definition given by Leo, a random forest is a classifier consisting of a collection of tree-structured classifiers $ \{h(x, \theta_k), k=1, ... \} $, where the $ \{ \theta_k \} $ are independent identically distributed random vectors and each tree casts a unit vote for the most popular class at input $ x $.
+
+% Definitia e copiata din paper. E ok asa sau trebuie sa refrazez?
+
+When training the random forest, for each tree, n samples are taken with replacement from the training data (a bootstrap sample) and the tree is trained on these, using a slightly modified procedure. When splitting in a node, instead of choosing the best split across all features, as is done in the classical decision tree approach, here the best split is chosen from a random subset of the m features. This is done to avoid correlations between trees: otherwise good features would always get picked in all trees, so they would be correlated. As m is smaller, the correlation between the trees is smaller, but the strength of each tree (how well it can predict on its own) also goes down, so a balance must be found between these extremes. 
+
+Random forests are a popular algorithm in many machine learning competitions, because they are fast, they don't have many parameters to tune, yet still produce good predictions. Among their weaknesses is the fact that they can easily overfit a noisy dataset. 
+
 \subsection{Support Vector Machines}
+
+Support vector machines\cite{Cortes_1995} are discriminative classifiers formally defined by high-dimensional hyperplanes, which are used to distinguish between the classes to which data points belong. The hyperplane defined by an SVM maximizes the margin to the data points used in training, hoping that this leads to a better generalization of the classifier. 
+
+SVM can be used to project the original data to a much higher dimensional space (in some cases even infinte-dimensional space), so that they are linearly separable in that space. The mapping to a higher dimensional space is done using a kernel function. 
+
+One of the more popular kernels\cite{Chang:2010:TTL:1756006.1859899} that can be used is the radial basis function (RBF) kernel, which is defined as:
+
+\[
+    K(\mathbf{x}, \mathbf{x'}) = \exp\left(-\frac{||\mathbf{x} - \mathbf{x'}||_2^2}{2\sigma^2}\right) 
+\]
+
+The value of the RBF value goes from zero (at infinity) to one (when $ x = x'$), so it can be viewed as a similarity measure between the two samples. \cite{Vert}
+
+Because sometimes there is noise in the data, so it may not be possible to separate the data linearly, not even in a high dimensional space or, even if possible, this may not be desirable, because it would overfit to the data and not generalize well. In such cases, it is prefered to have a decision surfaces that makes some mistakes on the training data, but generalizes better and represents the noisy data more accurately. SVMs can be used as soft margin classifiers, allowing examples to be classified wrongly at training time, but penalizing them according to their distance to the other side of the hyperplane. \cite{russell1995artificial}
+
+Because SVMs separate only two classes, when there are multiple classes to be distinguished, the ``one-vs-all`` approach can be used for classification, and is as accurate as any other approach for this problem\cite{rifkin2004defense}. In this case, one classifier is trained for each class, to distinguish it from all other classes. To make a prediction, all classifiers predict their value and the one that is used will be the one with the highest confidence score.
+
 \subsection{Neural networks}
+Neural networks are at their core stacked non-linear regressions?
 \subsection{Deep learning}

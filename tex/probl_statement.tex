@@ -36,5 +36,45 @@ BI is usually used in businesses as part of their decision support systems, to h
 
 Even though the primary intended users of ReceiptBudget are not businesses, but consumers, many lessons can be taken from the domain of business intelligence on how to process the financial data, extract information from it and present it to the user.  
 
-\subsection{Interactive Dashboards}
-Humans are much better at processing data visually instead of a tabular form and it is easier to notice outliers and variations in the data if the data is plotted on a chart\cite{daniel1959use}.
+\subsection{Data visualization}
+Humans are much better at processing data visually instead of a tabular form and it is easier to notice outliers and variations in the data if the data is plotted on a chart\cite{daniel1959use}. The branch of statistics that is dealing with creating visual representations of data is called data vizualization. Data visualization deals with information that is a schematic, structured form, having attributes and variables \cite{friendly2008milestones}. 
+
+The role of visualizations is to communicate the information contained in them in a clear and effective way, through graphical means, and to engage the viewer to be more attentive. It does this using techniques used in information graphics, scientific visualization and statistical graphics, to which it is closely related. 
+
+In \cite{post2003data}, Frits Post categorized the domain of data visualization into the following subcategories:
+
+\begin{itemize}
+	\item Information visualization
+	\item Interaction techniques and architectures
+	\item Modelling techniques
+	\item Multiresolution methods
+	\item Visualization algorithms and techniques
+	\item Volume visualization
+\end{itemize} 
+
+
+Robert Amar classified the ways users interact with data visualization instances into the following ten categories in \cite{amar2005low}:
+
+\newcommand\litem[1]{\item{\bfseries #1,\\}}
+\begin{enumerate}
+\litem{Retrieve Value} Finding attributes for specific cases
+\litem{Filter} Finding data points that satisfy certain conditions
+\litem{Compute Derived Value} Calculating aggregate values over attributes of the data
+\litem{Find Extremum} Finding the data points corresponding to the extreme values of an attribute
+\litem{Sort} Ranking data according to a metric
+\litem{Determine Range} Finding the span of values for a given attribute of the data
+\litem{Characterize Distribution} Finding the distribution the characterizes an attribute of the data
+\litem{Find Anomalies} Identifying anomalous and outlying data points
+\litem{Cluster} Finding clusters of data points that are related to each other
+\litem{Correlate} Finding useful relationships between two attributes of a data set
+\end{enumerate}
+
+An important part of the data visualization part of the business intelligence process is made out of dashboards. Dashboards are used to provide quick access to key performance indicators that are relevant to a business \cite{alexander2013excel}. 
+
+The data shown on dashboards differs from case to case. A dashboard made for the manufacturing department would show the number of parts manufactured and the number of failed quality inspections per hour, while a dashboard used by the human resources dashboard would show numbers related to staff composition, retention and recruitment. 
+
+The interface of a software dashboard is inspired from the car dashboard, showing what is needed to help in the process of making better decisions for the business. This can range from showing summaries of the data to showing graphs of the data (pie charts, bar charts, line graphs, etc.).
+
+Using dashboards helps identify negative trends for the important business metrics, measure inefficiencies in the business processes, gain a visibility of all the systems involved with the business and in identifying outliers and correlations from the data. 
+
+In the case of ReceiptBudget, the dashboard is used as the primary means of data visualization. It helps the user identify patterns in their spending habits, with the intended goal of finding areas where large amounts of money are spent unnecessarily. In order to do this, the user is presented with a map of the spendings and various charts where the user can drill down and see reports breaking down his expenses per month, shops or date ranges. This is presented in more detail on page \pageref{sec:manual}.
