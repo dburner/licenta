@@ -6,13 +6,9 @@ Coming to college was the first time for me when I was on my own and I had to ca
 
 After trying out a lot of alternatives, I decided that I would make my own program for managing my budget. It would be really easy to add expenses by taking a photo of a receipt and having OCR extract the details from the photo. There would have to be lots of reports, which can be filtered by months, shops or items, so that I could observe spending patterns and hopefully do something about them. This lead to the creation of ReceiptBudget, presented in this thesis. 
 
-% trebuie referinte la Python, scikit-learn, Django si alte librarii?
-ReceiptBudget is a web application written in Python, using the Django framework. After a user registers, he can insert expenses either manually or by taking a photo of a receipt, or he can view the dashboard of his expenses. If his expenses for the past week are over the average weekly expenses, he receives a visual warning, reminding him to be careful with what he spend his money on. 
-
 \section{The OCR Engine}
 The OCR engine does three things: it preprocesses and normalizes an image containing a receipt, it recognizes the text that is written on each line and then it extracts useful information from that text. 
 
-For the processing of the image the OpenCV libray is used, with its Python bindings. The scikit-learn library \cite{pedregosa2011scikit} is used for the random forest and SVM implementations, while the neural networks are used from the pylearn2 library \cite{goodfellow2013pylearn2}. 
 \subsection{Model design}
 
 \subsubsection{The Random Forest Model}
@@ -158,7 +154,19 @@ Predicted split & 255 & 2546 \\  \hline
 \end{tabular}
 \end{table}
 \section{Development}
+
+% trebuie referinte la Python, scikit-learn, Django si alte librarii?
+ReceiptBudget is a web application written in Python, using the Django framework. The dashboard was developed using the Google Maps API v3, the d3.js and dc.js Javascript visualization frameworks and the crossfilter Javascript data filtering library. 
+
+For the processing of the image the OpenCV libray is used, with its Python bindings. The scikit-learn library \cite{pedregosa2011scikit} is used for the random forest and SVM implementations, while the neural networks are used from the pylearn2 library \cite{goodfellow2013pylearn2}. 
 \subsection{Requirements Analysis}
+The application needs to support multiple users. New users can create an account by registering. After that they can import a CSV file that was exported from other finance management software. 
+
+An authenticated user can then start inserting his expenses. He has three ways to do this. The first one is to take a picture of the receipt using a webcam. The second is to upload a photo containg a receipt from his harddrive. The last option is to enter the details of the receipt manually. 
+
+In the dashboard, the user has three views where he can visualize his expenses. He can see a heat map of all his expenses. Another view is a dynamic heat map that shows the progression of his expenses day by day. The last view is the one which contains the interactive charts and graphs. Here the user can see detailed breakdowns of his expenses by day of week, shop, months and date range, hopefully noticing any negative spending patterns that can be cut down. 
+
+If a users expenses for the past week are over the average weekly expenses, they will receive a visual warning, reminding them to be careful with what they spend their money on. This warning comes as a bright colored bar at the top of the screen, with the intensity of the color depending on how much the user stepped over the normal expense range. 
 \subsection{Designing}
 \subsection{Implementation}
 \section{User Manual}
