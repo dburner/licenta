@@ -139,7 +139,7 @@ Because SVMs separate only two classes, when there are multiple classes to be di
 \subsection{Neural networks}
 Neural networks are a machine learning algorithm inspired from the brain. They are modeled by neurons, that are connected to each other through synapses, which have weights. Neurons add the signals they receive from the neurons to which they are connected, pass them through an activation function, which then determines the strength of the outgoing signal of that particular neuron. 
 
-Neural networks are usually organized into layers, each consisting of a variable number of neurons. If the connections between the neurons do not form a cycle, then this architecture is called a feedforward neural network. The presence of cycles in the network gives it more representational power, at the expense of significantly more difficult training. 
+Neural networks are usually organized into layers, each consisting of a variable number of neurons. If the connections between the neurons do not form a cycle, then this architecture is called a feedforward neural network or a \textit{multilayer perceptron} (MLP). The presence of cycles in the network gives it more representational power, at the expense of significantly more difficult training. 
 
 
 \begin{figure}[h]
@@ -181,7 +181,7 @@ When there are many layers in a neural network, the error gradient that is backp
 
 \subsection{Deep learning}
 
-Deep learning is a recent development in the field of neural networks that focuses on having more layers and finding ways to avoid the vanishing gradient problem.
+\textit{Deep learning} is a recent development in the field of neural networks that focuses on having more layers and finding ways to avoid the vanishing gradient problem.
 
 The deep learning revolution started in 2006 when Hinton and Teh found a learning algorithm that enabled fast learning in Deep Belief Nets (DBN) \cite{hinton2006fast}. These involved training Restricted Boltzmann Machines (RBM) in an unsupervised manner and then using them to initialize the weights of the DBNs. This initialization enabled the optimization algorithms to find a solution much faster than if they would have initialized with random weights.
 
@@ -224,4 +224,4 @@ where $ \sigma $ denotes the logistic sigmoid function.
 
 RBMs are trained using the contrastive divergence algorithm \cite{hinton2002training}. This algorithm takes a training sample $ v $, computes the activations of hidden units and samples an hidden vector $h$ from them. From $h$ construct a sample of the input units $ v'$, from which then another hidden vector $ h' $ is calculated. The difference between the outer products of $ v' $ with $ h' $ and $ v $ and $ h $ are the weight updates for the RBM. 
 
-More recently, unsupervised pretraining has been abandoned in favor of better optimization methods such as the Hessian free approach introduced by Martens in \cite{martens2010deep}, new layers such as ReLU \cite{nair2010rectified}, Maxout \cite{goodfellow2013maxout}, Max-Pooling \cite{scherer2010evaluation}, better regularization with Dropout \cite{hinton2012improving}, or just by throwing more computational power at the problem, as done by Cireșan in \cite{Cire_an_2010}. In this paper, Cireșan et al. have showed that using a GPU to train the neural network using the same layers that have existed for 20 years, can obtain the state-of-the-art results at the time, using only dataset augmentations. 
+More recently, unsupervised pretraining has been abandoned in favor of better optimization methods such as the Hessian free approach introduced by Martens in \cite{martens2010deep}, new layers such as ReLU \cite{nair2010rectified}, Maxout \cite{goodfellow2013maxout}, Max-Pooling \cite{scherer2010evaluation}, better regularization with Dropout \cite{hinton2012improving}, or just by throwing more computational power at the problem, as done by Cireșan in \cite{Cire_an_2010}. In this paper, Cireșan et al. have showed that using a GPU to train the neural network using the same layers that have existed for 20 years, can obtain results on the MNIST dataset which were the state-of-the-art at the time, using only dataset augmentations. 
