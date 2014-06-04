@@ -1,4 +1,4 @@
-\chapter{The Application}
+\chapter{ReceiptBudget: A System for Managing Personal Finances Based on Receipts}
 \label{chap:application}
 
 % ii ok o introducere asa personala?
@@ -6,7 +6,7 @@ Coming to college was the first time for me when I was on my own and I had to ca
 
 After trying out a lot of alternatives, I decided that I would make my own program for managing my budget. It would be really easy to add expenses by taking a photo of a receipt and having OCR extract the details from the photo. There would have to be lots of reports, which can be filtered by months, shops or items, so that I could observe spending patterns and hopefully do something about them. This lead to the creation of ReceiptBudget, presented in this thesis. 
 
-\section{The OCR Engine}
+\section{The OCR Engine. Our proposal}
 The OCR engine does three things: it preprocesses and normalizes an image containing a receipt, it recognizes the text that is written on each line and then it extracts useful information from that text. 
 
 \subsection{Model design}
@@ -21,7 +21,7 @@ The SVM was used as a baseline for the character recognition problem. The perfor
 
 The regularization parameter of the SVM was determined using cross-validation. 
 
-\subsection{The Neural Network Model}
+\subsubsection{The Neural Network Model}
 Neural networks were used for recognizing the characters. Various models were tried, including RBMs, Rectified Linear Units and Dropout. 
 
 
@@ -167,8 +167,8 @@ An authenticated user can then start inserting his expenses. He has three ways t
 In the dashboard, the user has three views where he can visualize his expenses. He can see a heat map of all his expenses. Another view is a dynamic heat map that shows the progression of his expenses day by day. The last view is the one which contains the interactive charts and graphs. Here the user can see detailed breakdowns of his expenses by day of week, shop, months and date range, hopefully noticing any negative spending patterns that can be cut down. 
 
 If a users expenses for the past week are over the average weekly expenses, they will receive a visual warning, reminding them to be careful with what they spend their money on. This warning comes as a bright colored bar at the top of the screen, with the intensity of the color depending on how much the user stepped over the normal expense range. 
-\subsection{Designing}
+\subsection{Design}
 \subsection{Implementation}
-\section{User Manual}
+\subsection{User Manual}
 \label{sec:manual}
 \section{Discussion}

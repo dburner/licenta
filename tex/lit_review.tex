@@ -224,6 +224,28 @@ where $ \sigma $ denotes the logistic sigmoid function.
 
 RBMs are trained using the contrastive divergence algorithm \cite{hinton2002training}. This algorithm takes a training sample $ v $, computes the activations of hidden units and samples an hidden vector $h$ from them. From $h$ construct a sample of the input units $ v'$, from which then another hidden vector $ h' $ is calculated. The difference between the outer products of $ v' $ with $ h' $ and $ v $ and $ h $ are the weight updates for the RBM. 
 
+Another way to do unsupervised pretraining is to use autoencoders, also known as Diabolo networks \cite{bengio2009learning} . These are feedforward neural networks where the output is set to equal the input, so that they learn the identity function, but the hidden layers have certain constraints on them. The connection between the input layer and the hidden layer can be interpreted as an encoding function, while the connections between the hidden layer and the output layer can be viewed as the decoding function. These two function composed together give the identity function $ g(f(x)) = x $. 
+
+If an autoencoder had the same number of neurons on the hidden layer as on the input layer, it would be trivial for it to learn the identity function for both the encoding and the decoding parts. This would be of no use to us. However, if there are constraints on the hidden layer, these can make the network learn useful things about the structure of the data and use it to compress or learn new, higher level features. 
+
+The objective of the autoencoder is to minimize the reconstruction error:
+
+\[
+	L(x, y) = \|x-y\|^2
+\]
+
+The most basic type of autoencoder is the one where the constraint is that the number of neurons on the hidden layer is smaller than the number of neurons on the input layer. This prevents the network from simply memorizing the inputs, so it has to find patterns and to compress the data in order to be able to reproduce it at the output layer. 
+
+Another type of autoencoder is a sparse autoencoder \cite{hinton2010practical}, where there is a penalty for each simultaneously activated neuron in the hidden layer. In this way, the neurons are encouraged to be activated less. Because each neuron corresponds to an extracted feature, when a neuron is activated it means that the corresponding feature is present in the input data. If the neurons have to be activated separately, then they will all learn to recognize different features. Sparsity is done by adding the following penalty term to the loss function:
+
+\[
+	\beta \sum_i ( \rho \log \frac{\rho}{\rho_j} + (1-\rho) \log \frac{1-\rho}{1-\rho_j})
+\]
+
+where $\beta $ is the term that controls the strength of the penalization, $\rho$ is the sparsity parameter, representing how often we would like a neuron to be activated. It usually has a value of $ 0.1 $. $\rho_j$ represents how often neuron \textit{j} has been activated during this training batch. 
+
+Another way that autoencoders can learn an encoding of the input is if it corrupted with noise, but the output is still required to be the original, correct data. This is called a denoising autoencoder, introduced by Vincent Pascal in \cite{vincent2008extracting}. The noise that is added is either a gaussian noise or a binary mask that sets some of the inputs to 0. To be able to reproduce the correct output, the neural network must learn the correlations that exist between the input variables and then use them to determine when they are noisy.  
+
 More recently, unsupervised pretraining has been abandoned in favor of better optimization methods such as the Hessian free approach introduced by Martens in \cite{martens2010deep}, new layers such as ReLU \cite{nair2010rectified}, Maxout \cite{goodfellow2013maxout}, Max-Pooling \cite{scherer2010evaluation}, better regularization with Dropout \cite{hinton2012improving}, or just by throwing more computational power at the problem, as done by Cireșan in \cite{Cire_an_2010}. In this paper, Cireșan et al. have showed that using a GPU to train the neural network using the same layers that have existed for 20 years, can obtain results on the MNIST dataset which were the state-of-the-art at the time, using only dataset augmentations. 
 
 The Hessian free optimization method involves taking into account 2nd order information about the gradient in order to avoid pathological cases in the surface of the loss function. While classic optimization algorithms often waste a lot of time bouncing in valleys, the Hessian free speeds up the process of going through the valley. It improves upon other second order optimization methods such as Newton's method, because they require the computation of the Hessian matrix, which can be difficult to calculate analytically and for n parameters requires $ \mathcal{O}(n^2) $ storage space and time steps, which is unfeasible in practice for neural networks with millions of parameters. The Hessian free method sidesteps the need to calculate this expensive Hessian matrix, replacing it with applying Conjugate Gradient on the second order Taylor expansion of the function to optimize. 
