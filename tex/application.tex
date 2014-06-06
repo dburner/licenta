@@ -2,9 +2,9 @@
 \label{chap:application}
 
 % ii ok o introducere asa personala?
-Coming to college was the first time for me when I was on my own and I had to carefully manage my financial resources. After the first couple of months, during which I would inevitably end up short, I realized I needed a way to track my spending. I tried many methods. The first trials were using an Excel spreadsheet to record them, but that was tedious and I would often forget. Then I started looking around for other existing programs, but I didn't find any that would be acceptable. Some, like Mint \cite{mint}, that offered very detailed reports and forecasts, would get the information by linking your bank account. GnuCash \cite{gnucash}, had an extremely complicated system for doing double bookkeeping. Programs like Toshl \cite{toshl} or ExpenseIQ \cite{expenseiq} weren't doing much more than my Excel spreadsheet with a couple of charts, and entering data sure wasn't easier. 
+The idea for ReceiptBudget came out of a necessity most students face when they come to college and have to manage their own money for the first time. They are most often overspending and not keeping good track of their finances. Most existing tools are difficult to use or require a lot of time. Some try to use Excel spreadsheets to record their expenses, but that is tedious and easy to forget to do. Others, like Mint \cite{mint}, that offered very detailed reports and forecasts, would get the information by linking to a bank account. GnuCash \cite{gnucash}, had an extremely complicated system for doing double bookkeeping. Programs like Toshl \cite{toshl} or ExpenseIQ \cite{expenseiq} weren't doing much more than an Excel spreadsheet with a couple of charts, and entering data is not any easier. 
 
-After trying out a lot of alternatives, I decided that I would make my own program for managing my budget. It would be really easy to add expenses by taking a photo of a receipt and having OCR extract the details from the photo. There would have to be lots of reports, which can be filtered by months, shops or items, so that I could observe spending patterns and hopefully do something about them. This lead to the creation of ReceiptBudget, presented in this thesis. 
+ReceiptBudget is a solution to all these problems and to help people manage their budgets, presented in this thesis. It is  really easy to add expenses by taking a photo of a receipt and having the OCR engine extract the details from the photo. There would have to be lots of reports, which can be filtered by months, shops or items, so that the users could observe spending patterns and hopefully do something about them.
 
 \section{The OCR Engine. Our proposal}
 The OCR engine does three things: it preprocesses and normalizes an image containing a receipt, it recognizes the text that is written on each line and then it extracts useful information from that text. 
@@ -22,7 +22,7 @@ The SVM was used as a baseline for the character recognition problem. The perfor
 The regularization parameter of the SVM was determined using cross-validation. 
 
 \subsubsection{The Neural Network Model}
-Neural networks were used for recognizing the characters. Various models were tried, including RBMs, Rectified Linear Units and Dropout. 
+Neural networks were used for recognizing the characters. Various models were tried, including Autoencoders, Rectified Linear Units and Dropout. 
 
 
 \subsection{Document Layout Analysis}
@@ -58,9 +58,48 @@ Figure \ref{fig:sub2} is obtained after edge removal, straightening and binariza
 \label{fig:test}
 \end{figure}
 
+\subsection{Extracting data from text}
+After the text is recognized in images, it must be processed and brought to a usable form. There are 6 relevant pieces of information that can be extracted from a receipt: the name of the shop which emitted the receipt, the address of that shop, the Unique Identifying Code (CUI) given to the company by the government, the items that were bought, the date the sale was made, and the total sum of money paid. 
 
-\subsection{Experimental Evaluation}
-In this section we describe the experiments that we have done, starting with the data gathering process, the training of the models and the results of their evaluation.
+The approach used in this thesis to extract this information is a simple rule based based system, that looks at each line and checks if it matches some conditions, such as if it matches a regular expression, or the if the count of digits, letters and other characters on the line is in certain ranges, to try to classify each line in one of those categories. 
+
+The name of the shop is identified by searching the line for the following regular expression: 
+
+\begin{lstlisting}
+'S\.?C\.?(.+?)(S.?R.?L.?)|(S[:.,]?A[:.,]?)'
+\end{lstlisting}
+
+This expression search for anything that starts with \textbf{S.C.} and ends with either a \textbf{S.R.L} or \textbf{S.A.}. Because the dots are small and they are likely to be misclassified or not recognized, they are made optional in the regular expression. Another condition that a line must satisfy is to be in the first 5 lines of the receipt. This is done to prevent detecting any oddly named items that might match this pattern. The only problem with this regular expression is that some shops belong to a different class of entities, such as Kaufland, which is a ``Societate în comandită''.
+
+The unique identifier of the shop can come in multiple forms: it always contains at least 4 digits, sometimes is prefixed by \textbf{C.U.I}, \textbf{C.F.} or \textbf{C.I.F.}, and it must be in the first 6 lines of the receipt. Also, any line containing 8 consecutive digits is considered to be the unique identifier. The regular expression for this is given by:
+
+\begin{lstlisting}
+'(C[^\w]?U[^\w]?I[^\w]?)|(C[^\w]?F[^\w]?)|
+ (C[^\w]?I[^\w]?F[^\w]?)|
+ (COD FISCAL).+? (\d){4,}'
+\end{lstlisting}
+
+The address is locating by looking for one of two patterns. If the line is among the first 3 lines in the receipt and it contains the letters \textbf{NR} followed by digits, it is assumed to be an address. To other condition is if it is in the first 7 lines and it starts with either \textbf{STR}, \textbf{CALEA} or \textbf{B-DUL}. These regular expressions are the following:
+
+\begin{lstlisting}
+'(STR)|(CALEA)|(B-DUL).(.+?)'
+'(NR).(\d+)'
+\end{lstlisting}
+
+If the substring \textbf{TVA} is found, the line is marked as a line containing the value added tax. This is not used anywhere else, but it helps reduce false classifications, because the item class is usually similar in structure. 
+
+Totals are identified very simply, by looking for the substring \textbf{TOTAL} or \textbf{SUBTOTAL}.
+
+Dates are identified by looking for a pattern that consists of two to four digits repeated three times, with either periods, commas or slashes between them. Optionally, it can be prefixed with \textbf{DATA}.
+
+\begin{lstlisting}
+'DATA?.+?\d{2,4}[.\\-]\d{2,4}[.\\-]\d{2,4}'
+'\d{2}[./\\-]\d{2}[./\\-]\d{2,4}'
+\end{lstlisting}
+
+Items must occur before the line containing the \textbf{TOTAL}. Items sometimes have the name of the item and its price on the same line, but sometimes they are on two lines. The price part must have at least one character (usually for the currency), the ratio of digits to letters must be greater than one, it must be at least the third line in the receipt, but not in the last seven lines and the line most not contain \textbf{TEL} or \textbf{FAX}. The part with the item name must be at least the fourth line in a receipt, but before the last eight lines, it must have at least five letters and punctuation characters, and it must not contain any of the following \textbf{TEL}, \textbf{FAX}, \textbf{SUBTOTAL}, \textbf{NUMERAR}, \textbf{BRUT}, \textbf{NET} or any of the day names. 
+
+Any other lines are classified as unknown and are not taken into consideration in the subsequent steps.   
 
 \subsection{Data Set and Processing}
 The data set was obtained from 20 receipts that were manually annotated with the position of each character in them. In total there are 7045 characters. There are 74 different characters, including digits, uppercase and lowercase letters and punctuation. 
@@ -73,12 +112,16 @@ For the character recognition problem, the labels corresponding to each characte
 
 For the character segmentation problem, the labels were binary: 1 if a certain data point was were a segmentation should occur, 0 otherwise. 
 
+For the neural network models the data set was augmented by moving each letter shape in the four possible directions by one pixel. This resulted in a five-fold increase in the number of data points available. This augmentation was not used in the case of the SVM because SVM training time is quadratic in the number of samples, and thus training time became unfeasible. 
+
 \subsection{Training and Testing}
 The data set was shuffled and then split into two parts, one for training and one for testing. The splitting was done in a random way, because the data points are independent and order does not matter. The training set contained 80\% of the data and the test set contained the remaining 20\%. 
 
 All experiments were run multiple types, with the dataset being shuffled each time. In the case of the Random Forests, the multiple runs of the experiments are necessary because the splitting points for the trees and the dataset splits are chosen randomly across runs. In the case of the neural networks, the initialization of the weights between neurons was random. 
-\subsection{Results}
+\subsection{Experimental evaluation}
 \label{sec:recog}
+In this section we describe the experiments that we have done, starting with the data gathering process, the training of the models and the results of their evaluation.
+
 For both tasks, the parameters for the algorithms were selected using cross-validation. In the case of the SVM, the search space was on logarithmic scale from $10^{-2}$ to $10^4$ for the regularization parameter. In the case of the random forest, the number of trees used ranged from 150 to 250, in steps of 50, and the number of features to be sampled at each point varied from using the square root, the base 2 logarithm, 10\% or 30\% of the total number of features.
 
 The neural networks were used in 4 configurations: 
@@ -96,14 +139,13 @@ In all cases the learning rate was set to 0.8, the stochastic gradient descent a
 
 Table \ref{table:recog_values} contains the average, maximum and minimum values obtained as a baseline using an SVM for the accuracy of the character recognition problem.
 
-% Please add the following required packages to your document preamble:
-% \usepackage{booktabs}
 \begin{table}[h]
 \caption{The accuracy for the character recognition experiment}
 \label{table:recog_values}
-\begin{tabular}{llllll}
-\hline
-Kernel type & Regularization & Min     & Max     & Mean    & Std. dev. \\ \hline
+\begin{tabular}{lrrrrr}
+\toprule
+Kernel type & Regularization & Min     & Max     & Mean    & Std. dev. \\ 
+\midrule
 RBF & 0.01 & 0.09141 & 0.09207 & 0.09165 & 0.00030 \\ 
 Linear & 0.01 & 0.71585 & 0.71768 & 0.71672 & 0.00075 \\ 
 RBF & 1 & 0.59146 & 0.60671 & 0.60130 & 0.00697 \\ 
@@ -113,14 +155,31 @@ Linear & 100 & 0.89695 & 0.90006 & 0.89860 & 0.00128 \\
 RBF & 1000 & 0.90183 & 0.91341 & 0.90795 & 0.00475 \\ 
 Linear & 1000 & 0.89207 & 0.89762 & 0.89453 & 0.00231 \\ 
 RBF & 10000 & 0.90671 & 0.91220 & 0.90957 & 0.00225 \\ 
-Linear & 10000 & 0.89146 & 0.89762 & 0.89494 & 0.00258 \\ \hline
+Linear & 10000 & 0.89146 & 0.89762 & 0.89494 & 0.00258 \\ 
+\bottomrule
 \end{tabular}
 \end{table}
 
 In this case, using RBF kernel SVM resulted in a $ 91.018\% \pm 0.126 $ accuracy in the best case, using a value of 100 for the regularization rate, while using a linear kernel yielded $ 90.490\% \pm 0.097 $ as its best result, for the value of 1 for the regularization rate. A RBF kernel gives a slightly better results.
 
-Figure \ref{fig:conf_matrix} contains the confusion matrix for the best experiment on the character recognition problem.
+The results obtained from the neural networks can be seen in table \ref{table:nn_table}, with the minimum, maximum, mean and standard deviation shown for all four configurations, the experiments being run 5 times. 
 
+\begin{table}[h]
+\caption{The accuracy for the character recognition experiment}
+\label{table:nn_table}
+\begin{tabular}{lrrrr}
+\toprule
+Neural network & Min     & Max     & Mean    & Std. dev. \\ 
+\midrule
+RBM & 0.03887 & 0.04878 & 0.04375 & 0.00387 \\
+MLP2 & 0.01220 & 0.04192 & 0.02012 & 0.01244 \\
+MLP3 & 0.01143 & 0.05488 & 0.02424 & 0.01768 \\
+MLP4 & 0.01220 & 0.01829 & 0.01494 & 0.00256 \\ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure \ref{fig:conf_matrix} contains the confusion matrix for the best experiment on the character recognition problem.
 
 
 \begin{figure}[h!]
@@ -137,8 +196,9 @@ Table \ref{table:seg_values} contains the average, maximum and minimum values ob
 \caption{The F1 score for the character segmentation experiment}
 \label{table:seg_values}
 \begin{tabular}{llllll}
-\hline
-Nr. trees & Nr. features & Min     & Max     & Mean    & Std. dev. \\ \hline
+\toprule
+Nr. trees & Nr. features & Min     & Max     & Mean    & Std. dev. \\ 
+\midrule
 150 & 20 & 0.87318 & 0.88326 & 0.87735 & 0.00363 \\ 
 200 & 20 & 0.86975 & 0.88312 & 0.87657 & 0.00490 \\ 
 250 & 20 & 0.87258 & 0.88776 & 0.87773 & 0.00531 \\ 
@@ -150,7 +210,8 @@ Nr. trees & Nr. features & Min     & Max     & Mean    & Std. dev. \\ \hline
 250 & 120 & 0.87367 & 0.88565 & 0.87885 & 0.00391 \\ 
 150 & 40 & 0.87073 & 0.88671 & 0.87822 & 0.00552 \\ 
 200 & 40 & 0.86980 & 0.88519 & 0.87845 & 0.00513 \\ 
-250 & 40 & 0.87358 & 0.88671 & 0.87936 & 0.00445 \\  \hline
+250 & 40 & 0.87358 & 0.88671 & 0.87936 & 0.00445 \\ 
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -166,6 +227,28 @@ Predicted no split & 4556 & 363 \\
 Predicted split & 255 & 2546 \\  \hline
 \end{tabular}
 \end{table}
+
+In table \ref{table:line_identify}
+\begin{table}[h]
+\caption{The confusion matrix for the line identification problem}
+\label{table:line_identify}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+{} &  Address &  CUI &  Data &  Name &  Price &  Shop &  Total &  TVA &  Misc. \\
+\midrule
+Address &       62 &    0 &     0 &     3 &      0 &     0 &      0 &    0 &        0 \\
+CUI     &        0 &   50 &     0 &     2 &      0 &     0 &      0 &    0 &        5 \\
+Data    &        0 &    0 &    53 &     0 &      0 &     0 &      0 &    0 &        2 \\
+Name    &        0 &    0 &     0 &   169 &      2 &     0 &      0 &    0 &       43 \\
+Price   &        0 &    2 &     0 &     0 &    173 &     0 &      0 &    0 &        6 \\
+Shop    &        0 &    0 &     0 &     0 &      0 &    55 &      0 &    0 &        0 \\
+Total   &        0 &    0 &     0 &     0 &      0 &     0 &     79 &    0 &        0 \\
+TVA     &        0 &    0 &     0 &     1 &      0 &     0 &      0 &   68 &        0 \\
+Misc.   &        5 &    5 &     3 &     8 &      8 &     3 &      2 &    0 &      580 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Development}
 
 % trebuie referinte la Python, scikit-learn, Django si alte librarii?
