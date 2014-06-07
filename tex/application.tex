@@ -28,34 +28,93 @@ Neural networks were used for recognizing the characters. Various models were tr
 \subsection{Document Layout Analysis}
 Before any characters can be recognized in a receipt, the image must first be preprocessed and normalized. This is done in several steps. 
 
-The preprocessing consists of binarizing the images, using Otsu's method\cite{otsu1975threshold}, which adapts the threshold based on the histogram of the image. This step is done to remove any noise and speckles from the image. 
+The preprocessing consists of binarizing the images, using Otsu's method\cite{otsu1975threshold}, which adapts the threshold based on the histogram of the image. This step is done to remove any noise and speckles from the image. The result of this operation is seen in Figure \ref{fig:bin_image}.
 
-The first step in normalization is to straighten the images. The receipts are assumed to be photographed with a mobile phone camera. Users will most often take photos that are slightly rotated. The orientation of the images is assumed to be vertical, so the software will not try to identify if the receipt is horizontal. To straighten the images, they are rotated from -10 to 10 degrees, with a 0.3 angle step, and a horizontal projection (summing the pixel values row-wise) is done for each resulting image. The straight image is assumed to be the one were are the most variations between the peaks and valleys of the histogram, because in the straight image there would be high peaks because of the lines and low valleys because of the space between lines. 
+The first step in normalization is to straighten the images. The receipts are assumed to be photographed with a mobile phone camera. Users will most often take photos that are slightly rotated. The orientation of the images is assumed to be vertical, so the software will not try to identify if the receipt is horizontal. To straighten the images, they are rotated from -10 to 10 degrees, with a 0.3 angle step, and a horizontal projection (summing the pixel values row-wise) is done for each resulting image. The straight image is assumed to be the one with the highest peak in the histogram, because in the straight image there would be many pixel-wise line that have the same amount of color on them, while on crooked images, the pixel count of each line would be distributed more uniformly. An example of such a histogram can be seen in Figure \ref{fig:hist_plot}. The straightened image can be seen in Figure \ref{fig:straight_image}.
 
-The following step is removing the edges of the image, to keep only the receipt, removing any background. Due to variations in illumination, we cannot simply look for white patches to identify the receipt, because mobile cameras often use flash which gives receipts a blue tint while photos taken indoor close to a source of light have a yellow hue. The approach that was used was to look at the horizontal and vertical projections and to remove the section from the top and bottom that is over a threshold. 
+The following step is removing the edges of the image, to keep only the receipt, removing any background. Due to variations in illumination, we cannot simply look for white patches to identify the receipt, because mobile cameras often use flash which gives receipts a blue tint while photos taken indoor close to a source of light have a yellow hue. The approach that was used was to look at the horizontal projections and to remove the section from the left and right that is over a threshold. An example of such a projection can be seen in Figure \ref{fig:edge_plot}. This final version of the image is seen in Figure \ref{fig:edge_image}.
 
-The last step is detecting the lines in the receipt. Because the images are already straight and without edges, all we have to do is identify the peaks in the horizontal histogram in the image.  
-
-The end result of the Document Layout Analysis is shown in figure \ref{fig:receipts}, where we can see a receipt that is given as an input to the engine and the output of the Document Layout Analysis, the normalized image, with the detected lines highlighted.
+The last step is detecting the lines in the receipt. Because the images are already straight and without edges, all we have to do is identify the peaks in the horizontal histogram in the image. These peaks can be easily seen in Figure \ref{fig:line_plot}. Some of the extracted lines can be seen in Figure \ref{fig:line_samples}.
 
 
 \begin{figure}
 \centering
-\begin{subfigure}{0.45\linewidth}
+\begin{subfigure}{0.49\linewidth}
   \centering
-  \includegraphics[width=.6\linewidth]{img/bon1.jpg}
-  \caption{Example receipt}
-  \label{fig:sub1}
-\end{subfigure}%
-\begin{subfigure}{0.45\linewidth}
+  \includegraphics[width=.6\linewidth]{img/original.jpg}
+  \caption{Original receipt image}
+  \label{fig:orig_image}
+\end{subfigure}
+\begin{subfigure}{0.49\linewidth}
   \centering
-  \includegraphics[width=.4\linewidth]{img/cleaned1.jpg}
-  \caption{Receipt after passing through normalization}
-  \label{fig:sub2}
+  \includegraphics[width=.6\linewidth]{img/gray.jpg}
+  \caption{Image converted to grayscale}
+  \label{fig:gray_image}
+\end{subfigure}
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{img/binarized.jpg}
+  \caption{Binarized image}
+  \label{fig:bin_image}
+\end{subfigure}
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{img/straight.jpg}
+  \caption{Straigthened image}
+  \label{fig:straight_image}
 \end{subfigure}
 \caption{\label{fig:receipts}
-Figure \ref{fig:sub2} is obtained after edge removal, straightening and binarization of figure \ref{fig:sub1}. Detected lines are shown with red bounding boxes.}
-\label{fig:test}
+The first three steps of the preprocessing of figure \ref{fig:orig_image}. }
+\end{figure}
+
+\begin{figure}
+\ContinuedFloat 
+\centering
+\begin{subfigure}{0.49\linewidth}
+  \centering
+  \includegraphics[width=.4\linewidth]{img/cleaned.jpg}
+  \caption{Receipt after edge removal}
+  \label{fig:edge_image}
+\end{subfigure}
+\begin{subfigure}{0.49\linewidth}
+  \centering
+i  \includegraphics[width=\linewidth]{img/lines.jpg}
+  \caption{Four lines extracted from the receipt}
+  \label{fig:line_samples}
+\end{subfigure}
+\caption{\label{fig:receipts2}
+The last step of the preprocessing of figure \ref{fig:orig_image} and some of the resulting lines. }
+\end{figure}
+
+
+\begin{figure}
+\centering
+\begin{subfigure}{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/hist.png}
+  \caption{Histogram of the number of pixels on each line}
+  \label{fig:hist_plot}
+\end{subfigure}
+\begin{subfigure}{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/edges.png}
+  \caption{Plot of the number of pixels on each column}
+  \label{fig:edge_plot}
+\end{subfigure}
+\caption{\label{fig:plots}
+The graphs with the values used to preprocess the receipt in Figure \ref{fig:orig_image}. }
+\end{figure}
+
+\begin{figure}
+\ContinuedFloat
+\centering
+\begin{subfigure}{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/lines.png}
+  \caption{Plot of the number of pixels on each line}
+  \label{fig:line_plot}
+\end{subfigure}
+\caption{\label{fig:plots2} }
 \end{figure}
 
 \subsection{Extracting data from text}
@@ -228,7 +287,8 @@ Predicted split & 255 & 2546 \\  \hline
 \end{tabular}
 \end{table}
 
-In table \ref{table:line_identify}
+In table \ref{table:line_identify} we can see the confusion matrix for the line classification problem, showing how many times each class of lines was correctly classified and how often was it mistaken for something else. 
+
 \begin{table}[h]
 \caption{The confusion matrix for the line identification problem}
 \label{table:line_identify}
@@ -249,10 +309,21 @@ Misc.   &        5 &    5 &     3 &     8 &      8 &     3 &      2 &    0 &    
 \end{tabular}
 \end{table}
 
+The evolution of the performance of the neural networks can be seen in Figure \ref{fig:nn_iteration}. The first 20 iterations are cut off so that the improvements from the end can be seen better. 
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\linewidth]{img/nn_iteration.png}
+\caption{\label{fig:nn_iteration}
+Evolution of the neural network performance starting from the 20th iteration until the 100th one}
+\end{center}
+\end{figure}
 \section{Development}
 
-% trebuie referinte la Python, scikit-learn, Django si alte librarii?
-ReceiptBudget is a web application written in Python, using the Django framework. The dashboard was developed using the Google Maps API v3, the d3.js and dc.js Javascript visualization frameworks and the crossfilter Javascript data filtering library. 
+\subsection{Used frameworks and libraries}
+ReceiptBudget is a web application written in Python, using the Django framework \cite{django}. Django is a high-level framework for doing rapid Web development in Python. It provides an out-of-the-box administration interface, an object-relational mapper that allows models to be written in Python, without any SQL code, a URL routing framework and a powerful templating system.
+
+The maps of the dashboard were developed using the Google Maps API v3 \cite{gmapsjs}, which provides the mapping service for the heatmaps. The d3.js libray \cite{bostock2011d3} is the backbone of the dashboard. It provides a declarative way to view data in all kinds of visual ways and to make them interactive. The dc.js is a visualization framework built on top of d3.js which provides several standard graphical views, such as bar charts, pies, line charts. To provide a way to filter and drill down the data the crossfilter Javascript is used, which provides fast multidimensional filtering for coordinated views, allowing the user to select a subset of the data in one chart and updating the other charts to only include data from that subset. 
 
 For the processing of the image the OpenCV libray is used, with its Python bindings. The scikit-learn library \cite{pedregosa2011scikit} is used for the random forest and SVM implementations, while the neural networks are used from the pylearn2 library \cite{goodfellow2013pylearn2}. 
 \subsection{Requirements Analysis}
@@ -264,6 +335,36 @@ In the dashboard, the user has three views where he can visualize his expenses. 
 
 If a users expenses for the past week are over the average weekly expenses, they will receive a visual warning, reminding them to be careful with what they spend their money on. This warning comes as a bright colored bar at the top of the screen, with the intensity of the color depending on how much the user stepped over the normal expense range. 
 \subsection{Design}
+The default administration provided by the Django framework is customized to make it fit together with the rest of the website, both from a UI perspective and from a security point of view. By default, the administration interface shows every existent object from the database. This is changed so that it shows only the expenses that belong to the current user. These changes are done by subclassing the default admin classes and registering the child classes instead of them. The corresponding UML diagram can be seen in Figure \ref{fig:admin_classes}.
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\linewidth]{img/admin_classes.png}
+\caption{\label{fig:admin_classes}
+The classes used for the administration interface of the application}
+\end{center}
+\end{figure}
+
+There are four entities that need to be stored in the database. One of them is a user entity, which is provided by the Django framework with everything it needs, including a profile, registration, password recovery and other security measures. 
+
+The other entities are a \textbf{Shop}, where expenses can be made, an \textbf{Expense}, which has expense items, and \textbf{ExpenseItems}, which are the atomic elements of spending. 
+
+Shops have a name, an address, a CUI and geographical coordinates. These are determined from the address via a geocoding service, such as the one offered by Google. The geographical coordinates are stored in the database, even though they are computable attributes because making the call to an external service is costly and because the number of calls that can be made per second is limited. Because of this, whenever a new shop is introduced, or when an existing shop is modified, a call is made to determine its location. This location is then used to plot on the heatmap.
+
+Expenses have a date on which they were made and a user to whom they belong. They must have at least one Expense Item, but up to any number of them. They provide a property to calculate the total amount spent, by summing all the individual expenses. 
+
+Expense items have a name and a price associated with them and represent the fundamental element where money is spent. They are individual items that can be bought. 
+
+The UML diagram showing these classes can be seen in Figure \ref{fig:classes}.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\linewidth]{img/classes.png}
+\caption{\label{fig:classes}
+UML diagram of the classed used for the models and for the OCR engine}
+\end{center}
+\end{figure}
+
+The OCR engine has two entities: receipts and lines. A receipt can have multiple lines. The receipt is responsible for cleaning up the input image, preprocessing it and finding the lines in it, which are then instantiated as separate objects which perform the actual process of character segmentation and recognition. After all the lines have finished recognizing, the receipt object can classify its lines and then it can return the properties of the receipt: date, shop, CUI, address, items, total. 
 \subsection{Implementation}
 \subsection{User Manual}
 \label{sec:manual}
