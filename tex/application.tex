@@ -199,7 +199,7 @@ In all cases the learning rate was set to 0.8, the stochastic gradient descent a
 Table \ref{table:recog_values} contains the average, maximum and minimum values obtained as a baseline using an SVM for the accuracy of the character recognition problem.
 
 \begin{table}[h]
-\caption{The accuracy for the character recognition experiment}
+\caption{The baseline for the accuracy of the character recognition experiment, using an SVM}
 \label{table:recog_values}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -224,16 +224,16 @@ In this case, using RBF kernel SVM resulted in a $ 91.018\% \pm 0.126 $ accuracy
 The results obtained from the neural networks can be seen in table \ref{table:nn_table}, with the minimum, maximum, mean and standard deviation shown for all four configurations, the experiments being run 5 times. 
 
 \begin{table}[h]
-\caption{The accuracy for the character recognition experiment}
+\caption{The accuracy for the character recognition experiment using the neural network configurations}
 \label{table:nn_table}
 \begin{tabular}{lrrrr}
 \toprule
 Neural network & Min     & Max     & Mean    & Std. dev. \\ 
 \midrule
-RBM & 0.03887 & 0.04878 & 0.04375 & 0.00387 \\
-MLP2 & 0.01220 & 0.04192 & 0.02012 & 0.01244 \\
-MLP3 & 0.01143 & 0.05488 & 0.02424 & 0.01768 \\
-MLP4 & 0.01220 & 0.01829 & 0.01494 & 0.00256 \\ 
+SAU & 0.95122 & 0.96113 & 0.95625 & 0.00387 \\ 
+MLP2 & 0.95808 & 0.98780 & 0.97988 & 0.01244 \\ 
+MLP3 & 0.94512 & 0.98857 & 0.97576 & 0.01768 \\ 
+MLP4 & 0.98171 & 0.98780 & 0.98506 & 0.00256 \\ 
 \bottomrule
 \end{tabular}
 \end{table}
@@ -315,57 +315,152 @@ The evolution of the performance of the neural networks can be seen in Figure \r
 \begin{center}
 \includegraphics[width=\linewidth]{img/nn_iteration.png}
 \caption{\label{fig:nn_iteration}
-Evolution of the neural network performance starting from the 20th iteration until the 100th one}
+Evolution of the number of misclassifications made by the neural networks  starting from the 20th iteration until the 100th one}
 \end{center}
 \end{figure}
-\section{Development}
-
-\subsection{Used frameworks and libraries}
-ReceiptBudget is a web application written in Python, using the Django framework \cite{django}. Django is a high-level framework for doing rapid Web development in Python. It provides an out-of-the-box administration interface, an object-relational mapper that allows models to be written in Python, without any SQL code, a URL routing framework and a powerful templating system.
-
-The maps of the dashboard were developed using the Google Maps API v3 \cite{gmapsjs}, which provides the mapping service for the heatmaps. The d3.js libray \cite{bostock2011d3} is the backbone of the dashboard. It provides a declarative way to view data in all kinds of visual ways and to make them interactive. The dc.js is a visualization framework built on top of d3.js which provides several standard graphical views, such as bar charts, pies, line charts. To provide a way to filter and drill down the data the crossfilter Javascript is used, which provides fast multidimensional filtering for coordinated views, allowing the user to select a subset of the data in one chart and updating the other charts to only include data from that subset. 
-
-For the processing of the image the OpenCV libray is used, with its Python bindings. The scikit-learn library \cite{pedregosa2011scikit} is used for the random forest and SVM implementations, while the neural networks are used from the pylearn2 library \cite{goodfellow2013pylearn2}. 
-\subsection{Requirements Analysis}
-The application needs to support multiple users. New users can create an account by registering. After that they can import a CSV file that was exported from other finance management software. 
-
-An authenticated user can then start inserting his expenses. He has three ways to do this. The first one is to take a picture of the receipt using a webcam. The second is to upload a photo containg a receipt from his harddrive. The last option is to enter the details of the receipt manually. 
-
-In the dashboard, the user has three views where he can visualize his expenses. He can see a heat map of all his expenses. Another view is a dynamic heat map that shows the progression of his expenses day by day. The last view is the one which contains the interactive charts and graphs. Here the user can see detailed breakdowns of his expenses by day of week, shop, months and date range, hopefully noticing any negative spending patterns that can be cut down. 
-
-If a users expenses for the past week are over the average weekly expenses, they will receive a visual warning, reminding them to be careful with what they spend their money on. This warning comes as a bright colored bar at the top of the screen, with the intensity of the color depending on how much the user stepped over the normal expense range. 
-\subsection{Design}
-The default administration provided by the Django framework is customized to make it fit together with the rest of the website, both from a UI perspective and from a security point of view. By default, the administration interface shows every existent object from the database. This is changed so that it shows only the expenses that belong to the current user. These changes are done by subclassing the default admin classes and registering the child classes instead of them. The corresponding UML diagram can be seen in Figure \ref{fig:admin_classes}.
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[width=\linewidth]{img/admin_classes.png}
-\caption{\label{fig:admin_classes}
-The classes used for the administration interface of the application}
-\end{center}
-\end{figure}
-
-There are four entities that need to be stored in the database. One of them is a user entity, which is provided by the Django framework with everything it needs, including a profile, registration, password recovery and other security measures. 
-
-The other entities are a \textbf{Shop}, where expenses can be made, an \textbf{Expense}, which has expense items, and \textbf{ExpenseItems}, which are the atomic elements of spending. 
-
-Shops have a name, an address, a CUI and geographical coordinates. These are determined from the address via a geocoding service, such as the one offered by Google. The geographical coordinates are stored in the database, even though they are computable attributes because making the call to an external service is costly and because the number of calls that can be made per second is limited. Because of this, whenever a new shop is introduced, or when an existing shop is modified, a call is made to determine its location. This location is then used to plot on the heatmap.
-
-Expenses have a date on which they were made and a user to whom they belong. They must have at least one Expense Item, but up to any number of them. They provide a property to calculate the total amount spent, by summing all the individual expenses. 
-
-Expense items have a name and a price associated with them and represent the fundamental element where money is spent. They are individual items that can be bought. 
-
-The UML diagram showing these classes can be seen in Figure \ref{fig:classes}.
-
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[width=\linewidth]{img/classes.png}
-\caption{\label{fig:classes}
-UML diagram of the classed used for the models and for the OCR engine}
-\end{center}
-\end{figure}
-
-The OCR engine has two entities: receipts and lines. A receipt can have multiple lines. The receipt is responsible for cleaning up the input image, preprocessing it and finding the lines in it, which are then instantiated as separate objects which perform the actual process of character segmentation and recognition. After all the lines have finished recognizing, the receipt object can classify its lines and then it can return the properties of the receipt: date, shop, CUI, address, items, total. 
-\subsection{Implementation}
-\subsection{User Manual}
-\label{sec:manual}
+\input{./tex/implementation}
 \section{Discussion}
+This section analyzes our approaches and compares them to similar existing work.
+
+\subsection{Analysis of the Proposed Approach}
+In section \ref{sec:recog} we can see that using an SVM is a pretty good baseline for the character recognition problem, obtaining an average accuracy of 91\% with a RBF kernel. Using this type of kernel seems to seems to lead to slightly better results rather then just using a linear kernel, but not by more than 1-2\%. One explanation for this would be that the data is already high dimensional (400 dimensions) and the data points lie in sufficiently different parts so that the separating hyperplanes work effectively, without needing a projection into the infinite dimensional space offered by the RBF kernel. 
+
+Using neural networks leads to much better results. When using the pretraining approach with two stacked autoencoders, the accuracy reaches about $95.6\% \pm 0.3 \% $. Switching to using two layers of linear rectified units, even without pretraining, leads to a further improvement of two percent in accuracy, reaching $ 97.9\% \pm 1.2\% $. The 3 layered network has fewer neurons than the two layered one, but it still manages to give almost the same level of accuracy, $ 97.5\% \pm 1.7\% $, showing the advantages of using more layers, even if they are narrower. The best results are obtained using the the four layered neural network, which gives an accuracy of $ 98.5\% \pm 0.2\% $. 
+
+In the case of the character segmentation, the values of the parameter didn't matter that much. The difference between the best and the worst result was about 0.2. The number of features had the most influence, of $ 0.1\% $, on the F1 score, while the number of trees influenced it only by 0.01. The highest average was obtained for the values of 250 trees in the forest and 40 features chosen at each split, giving an F1 score of $ 87.936\% \pm 0.445$ on the validation set and a score of $ 91.99\% $ on the test set.  
+
+This seems to indicate that the number of features that are chosen at each split point is a more important parameter for random forests, while the number of trees used in the forest doesn't vary the results so much. This is in line with the theoretical basis of random forests\cite{breiman2001random}, which suggest that random forests are somewhat sensitive to the number of features used in them. 
+
+
+% todo
+If we look at the confusion matrix for the character recognition problem, computed for the whole data set, we can see that one of the most often made mistakes are:
+\begin{itemize}
+\item confusing , with . - 28 times
+\item confusing . with , - 12 times
+\item confusing O with 0 - 24 times
+\item confusing 0 with O - 15 times
+\item confusing 0 with o - 3 times
+\item confusing l with I - 6 times
+\item confusing I with T - 5 times
+\item confusing I with 1 - 4 times
+\item confusing 1 with I - 4 times
+\end{itemize} 
+
+These mistakes are easy to make: a comma and a period are very similar, especially in a noisy, low resolution environment. The lower and upper case letters O are again very similar to the digit 0, on some receipts there being no distinction between O and 0, only the context in which they are used. For monospace fonts, which some receipts use, the lack of difference between l, I, 1 is a well known problem, which is why many design books and human computer interaction studies recommend using other fonts\cite{chaparro2006examining}. 
+
+If we look at the confusion matrix for the character segmentation problem, we see that it makes the mistake of not predicting a split more often than it does the opposite, so the model is more specific, rather then sensitive. 
+
+Specifity and sensitivity can be computed as\cite{Fawcett_2006}
+
+\[
+    \text{sensitivity} = \frac{\text{true positives}}{\text{all positives}} = \frac{2546}{2546+363} = 87.52 \%
+\]
+\[
+    \text{specificity} = \frac{\text{true negatives}}{\text{all negatives}} = \frac{4556}{4556+255} =  94.70 \%
+\]
+
+Another good evaluation measure is the \textit{Area unde the ROC curve} (AUC)\cite{Fawcett_2006}. The \textit{ROC} (Receiver Operating Characteristic) curve is a plot of \textit{sensitivity} versus (1 - \textit{specificity}). Usually they are constructed from classifiers that instead of a label, return a score that can be converted into a label by thresholding. In the case of classifiers that return the class directly, the ROC curve has only one point, from where the AUC measure can be computed. 
+
+In our case, the AUC is 0.911, as computed from the graph in figure \ref{fig:roc}. 
+
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{img/roc.png}
+\caption{\label{fig:roc}
+ROC curve for the character segmentation problem}
+\end{center}
+\end{figure}
+
+\subsection{Comparison to Related Work}
+If we compare the results of the character recognition problem with the ones obtained on the MNIST dataset\cite{lecun1998mnist}, we see that our error rates are much higher: around 1.5\% versus 0.23\% (obtained by using a deep and wide neural network on MNIST). There are several possible explanations for this. One is that MNIST has only ten classes (corresponding to the ten digits), so it is much easier for a classifier to assign the correct class to a data point, compared to our dataset, which has 74 distinct classes, of which many are similar (the digit 0 and the letters o and O, the digit 1 and the letter l). Another factor that makes MNIST easier to solve is the fact that it has 70000 datapoints in total, while our dataset contains only 7045 data points. This almost ten fold difference has a great contribution to the ability of the classifier to generalize. Even on the MNIST dataset, adding more data is beneficial, as show by Ciresan et al.\cite{Cire_an_2010}, who obtained one of the best results on MNIST by augmenting the dataset with artificial data generated by transforming the existing digits. Also, one of the state-of-the-art neural network that obtained these results on MNIST had 9 layers of 1000 neurons each, so it has a much greater representational power than our 4 layered network having 2000 neurons in total. 
+
+The results obtained in \cite{kahraman2003license} and \cite{Franc_2005} for the character segmentation problem are a bit better than our results: 94.5\% and 96.7\% accuracy, compared to our 91.9\%. The difference between the two problems is that in their papers the number of characters in a licence plate is known and fixed, while lines in a receipt have varying lenghts. This prior knowledge used by them can explain the difference in results. 
+
+The paper by Janssen\cite{janssen2012receipts2go} deals with OCR on receipts, but they don't train the OCR engine for receipts, they just present a new approach for image normalization. In contrast, our approach improves the accuracy of the OCR engine by focusing on the character segmentation and recognition problem. 
+
+The best free OCR engine on the market, Tesseract, performs quite poorly. On the receipt seen in Figure \ref{fig:orig_image}, it produces the following text output:
+
+\begin{minipage}{0.5\linewidth}
+\begin{verbatim}
+S.C. HRTIHH 5.9.
+ELUJ NHPUCH. STR. BUCEGI. NR. 19
+
+9.9.1. 99 11735629
+RUN
+1.999 x 3.19
+BRTISTE N9Z.CLHS|C3S 3.19 9
+1.999 x 2.59
+STICKLETTI CHRTUF 99 2.59 9
+9.399 x 7.99
+HHNDHRINE 3.12 H
+9.446 x 7.99
+99511 3.56 9
+1.999 x 11.29
+SHLHH C959 USCHT 299 11.29 9
+SUBTUTHL 23.5?
+SUBTUTRL _____ ‘-29:99
+TUTHL 23.57
+TUH 9 24.992 4.55 9
+TUTHL 23.5?
+Nunerar 199.99
+REST ?E.43
+
+Carrefour ua nultuneste
+si ua doreste
+
+0 21 buna1
+11*#9111¥¥*¥¥¥#*¥¥**1¥¥¥¥¥¥¥
+TEL: 9374.294.B33
+FHX: 9374.294.934
+TELUERDE 9999.9B99.92
+X1441111¥*¥¥*¥¥¥¥¥%%*¥¥*¥¥¥¥
+
+99:91 PS:3 95:24 TR:11591
+
+BF. 944 DHTH:23/94/2913 9RH:29~22-59
+E1. CJ9563953455
+BONFISCHL
+\end{verbatim}
+\captionof{figure}{Output produced by Tesseract}
+\end{minipage}
+\begin{minipage}{0.5\linewidth}
+\begin{verbatim}
+S.C.   ARTIMA  S.A.
+CLUJMAPOCA,  STR.  BUCEGI,  NR. 19
+C  .U.1,R O1   1735628
+RON
+1.000  x  3,19
+BATISTE NAZ.CLASIC3S 3,19%
+1,000x   2,50
+STICNLETTI  CARTOF  80   2,50  A
+0,390  x  7,99
+MANDARINE   3,12A
+0,446  x  7,99
+R0SI 3,56  A
+1.000  x 11,20
+SALANIASAOSCAT  290  11,20A
+SUBTOTAL   23,57
+SUBTOTAL 23,57
+TOTAL   27,57
+IVA   A 24,00%   4,56
+IOTAL   23,57
+Numera8  100,00
+REST   76,43
+Ca8-8-efoLr   ua   multLxmeste
+Sl  0B O0tR8st8
+O   21 Dt   A8!
+****************************
+TEL:  0I74.204.833
+FAX:   0374.204.834
+tELUERDE  0800.0800.02
+****************************
+MG:81  PS:3  CS:24   TR:11581
+BF.   844   DATA:23/04/2013 ORA:20-22-58
+R CJ0563053455
+B OB  F S  CA L
+\end{verbatim}
+\captionof{figure}{Output produced by the OCR engine of ReceiptBudget}
+\end{minipage}
+
+By comparing to the output of ReceiptBudget, it can be seen that the latter is much better, even though it is not yet perfect. Tesseract completely fails to recognize the shop name, the date and the CUI, the address is only partially recognized and most of the bought items are unrecognizable. 

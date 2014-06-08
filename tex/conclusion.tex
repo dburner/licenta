@@ -1,2 +1,11 @@
 \chapter{Conclusions and future work}
 \label{chap:conclusion}
+In this thesis we have presented a new personal finance management tool that is based on a custom OCR engine to allow reading of expense information from receipts. The OCR engine was developed using machine learning algorithms, such as the random forest for the character segmentation problem and SVMs and neural networks for the character recognition. We evaluated and analyzed the results of the OCR engine that were obtained experimentally, emphasizing the advantages of our proposal with respect to similar existing approaches. 
+
+Future work will be made to improve the accuracy of the propsed models. One way to do this would be to gather more data. Almost all machine learning problems benefit from the addition of extra data\cite{halevy2009unreasonable}.
+
+Another step for improvement is to increase the accuracy of the character segmentation problem. Currently this lags far behind the character recognition problem, having an accuracy of 90\%, versus 98\%. One way to do this would be to formulate the problem differently. Now, for each column the classifier has to make a decision if it is a space between letters or not. Other approaches would be to instead predict the length of the current letter or to move to make a more global decision, to determine the best way to segment a line in a way that maximizes an energy function.
+
+The dashboard part of ReceiptBudget is very useful for users and can help them detect negative patterns in their spending behaviour. It is the users responsibility after that to do their best to change their actions in such a way as to improve their financial status. 
+
+An extension to this dashboard could be to make it detect automatically correlations in the users spending patterns, instead of just helping the user notice them more easier. Another area for future work would be to extrapolate from previous data to future user spending and help him plan his budget accordingly.
