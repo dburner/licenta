@@ -4,7 +4,7 @@
 % ii ok o introducere asa personala?
 The idea for ReceiptBudget came out of a necessity most students face when they come to college and have to manage their own money for the first time. They are most often overspending and not keeping good track of their finances. Most existing tools are difficult to use or require a lot of time. Some try to use Excel spreadsheets to record their expenses, but that is tedious and easy to forget to do. Others, like Mint \cite{mint}, that offered very detailed reports and forecasts, would get the information by linking to a bank account. GnuCash \cite{gnucash}, had an extremely complicated system for doing double bookkeeping. Programs like Toshl \cite{toshl} or ExpenseIQ \cite{expenseiq} weren't doing much more than an Excel spreadsheet with a couple of charts, and entering data is not any easier. 
 
-ReceiptBudget is a solution to all these problems and to help people manage their budgets, presented in this thesis. It is  really easy to add expenses by taking a photo of a receipt and having the OCR engine extract the details from the photo. There would have to be lots of reports, which can be filtered by months, shops or items, so that the users could observe spending patterns and hopefully do something about them.
+ReceiptBudget, presented in this thesis, is a solution to all these problems, meant to help people manage their budgets. It is  really easy to add expenses by taking a photo of a receipt and having the OCR engine extract the details from the photo. There would have to be lots of reports, which can be filtered by months, shops or items, so that the users could observe spending patterns and hopefully do something about them.
 
 \section{The OCR Engine. Our proposal}
 The OCR engine does three things: it preprocesses and normalizes an image containing a receipt, it recognizes the text that is written on each line and then it extracts useful information from that text. 
@@ -28,7 +28,7 @@ Neural networks were used for recognizing the characters. Various models were tr
 \subsection{Document Layout Analysis}
 Before any characters can be recognized in a receipt, the image must first be preprocessed and normalized. This is done in several steps. 
 
-The preprocessing consists of binarizing the images, using Otsu's method\cite{otsu1975threshold}, which adapts the threshold based on the histogram of the image. This step is done to remove any noise and speckles from the image. The result of this operation is seen in Figure \ref{fig:bin_image}.
+The preprocessing consists of binarizing the images, using Otsu's method \cite{otsu1975threshold}, which adapts the threshold based on the histogram of the image. This step is done to remove any noise and speckles from the image. The result of this operation is seen in Figure \ref{fig:bin_image}.
 
 The first step in normalization is to straighten the images. The receipts are assumed to be photographed with a mobile phone camera. Users will most often take photos that are slightly rotated. The orientation of the images is assumed to be vertical, so the software will not try to identify if the receipt is horizontal. To straighten the images, they are rotated from -10 to 10 degrees, with a 0.3 angle step, and a horizontal projection (summing the pixel values row-wise) is done for each resulting image. The straight image is assumed to be the one with the highest peak in the histogram, because in the straight image there would be many pixel-wise line that have the same amount of color on them, while on crooked images, the pixel count of each line would be distributed more uniformly. An example of such a histogram can be seen in Figure \ref{fig:hist_plot}. The straightened image can be seen in Figure \ref{fig:straight_image}.
 
@@ -64,7 +64,7 @@ The last step is detecting the lines in the receipt. Because the images are alre
   \label{fig:straight_image}
 \end{subfigure}
 \caption{\label{fig:receipts}
-The first three steps of the preprocessing of figure \ref{fig:orig_image}. }
+The first three steps of the preprocessing of Figure \ref{fig:orig_image}. }
 \end{figure}
 
 \begin{figure}
@@ -83,7 +83,7 @@ i  \includegraphics[width=\linewidth]{img/lines.jpg}
   \label{fig:line_samples}
 \end{subfigure}
 \caption{\label{fig:receipts2}
-The last step of the preprocessing of figure \ref{fig:orig_image} and some of the resulting lines. }
+The last step of the preprocessing of Figure \ref{fig:orig_image} and some of the resulting lines. }
 \end{figure}
 
 
@@ -120,7 +120,7 @@ The graphs with the values used to preprocess the receipt in Figure \ref{fig:ori
 \subsection{Extracting data from text}
 After the text is recognized in images, it must be processed and brought to a usable form. There are 6 relevant pieces of information that can be extracted from a receipt: the name of the shop which emitted the receipt, the address of that shop, the Unique Identifying Code (CUI) given to the company by the government, the items that were bought, the date the sale was made, and the total sum of money paid. 
 
-The approach used in this thesis to extract this information is a simple rule based based system, that looks at each line and checks if it matches some conditions, such as if it matches a regular expression, or the if the count of digits, letters and other characters on the line is in certain ranges, to try to classify each line in one of those categories. 
+The approach used in this thesis to extract this information is a simple rule based system, that looks at each line and checks if it matches some conditions, such as if it matches a regular expression, or the if the count of digits, letters and other characters on the line is in certain ranges, to try to classify each line in one of those categories. 
 
 The name of the shop is identified by searching the line for the following regular expression: 
 
@@ -128,7 +128,7 @@ The name of the shop is identified by searching the line for the following regul
 'S\.?C\.?(.+?)(S.?R.?L.?)|(S[:.,]?A[:.,]?)'
 \end{lstlisting}
 
-This expression search for anything that starts with \textbf{S.C.} and ends with either a \textbf{S.R.L} or \textbf{S.A.}. Because the dots are small and they are likely to be misclassified or not recognized, they are made optional in the regular expression. Another condition that a line must satisfy is to be in the first 5 lines of the receipt. This is done to prevent detecting any oddly named items that might match this pattern. The only problem with this regular expression is that some shops belong to a different class of entities, such as Kaufland, which is a ``Societate în comandită''.
+This expression searches for anything that starts with \textbf{S.C.} and ends with either a \textbf{S.R.L} or \textbf{S.A.}. Because the dots are small and they are likely to be misclassified or not recognized, they are made optional in the regular expression. Another condition that a line must satisfy is to be in the first 5 lines of the receipt. This is done to prevent detecting any oddly named items that might match this pattern. The only problem with this regular expression is that some shops belong to a different class of entities, such as Kaufland, which is a ``Societate în comandită''.
 
 The unique identifier of the shop can come in multiple forms: it always contains at least 4 digits, sometimes is prefixed by \textbf{C.U.I}, \textbf{C.F.} or \textbf{C.I.F.}, and it must be in the first 6 lines of the receipt. Also, any line containing 8 consecutive digits is considered to be the unique identifier. The regular expression for this is given by:
 
@@ -249,7 +249,7 @@ Confusion matrix for the best model for the character recognition problem}
 \end{center}
 \end{figure}
 
-Table \ref{table:seg_values} contains the average, maximum and minimum values obtained for the F1 measure\cite{fawcett2006introduction} of the character segmentation problem. The F1 measure is used instead of the accuracy because the two classes are imbalanced: there are 11475 data points which indicate a segmentation point, while there are 19402 points which are not segmentation points, almost twice as many. 
+Table \ref{table:seg_values} contains the average, maximum and minimum values obtained for the F1 measure \cite{fawcett2006introduction} of the character segmentation problem. The F1 measure is used instead of the accuracy because the two classes are imbalanced: there are 11475 data points which indicate a segmentation point, while there are 19402 points which are not segmentation points, almost twice as many. 
 
 \begin{table}[h]
 \caption{The F1 score for the character segmentation experiment}
@@ -274,7 +274,7 @@ Nr. trees & Nr. features & Min     & Max     & Mean    & Std. dev. \\
 \end{tabular}
 \end{table}
 
-The confusion matrix for the best experiment on the character segmentation problem is presented in table \ref{table:seg_conf}.
+The confusion matrix for the best experiment on the character segmentation problem is presented in table \ref{table:seg_conf}. For each combination of predicted and true labels we count the number of occurrences and then plot them on a heat map. The deepest blue color mean that there were no occurrences of the corresponding predicted and true labels, while the most common combination is shown in the color red. 
 
 \begin{table}[h]
 \caption{The confusion matrix for the character segmentation experiment}
@@ -323,13 +323,13 @@ Evolution of the number of misclassifications made by the neural networks  start
 This section analyzes our approaches and compares them to similar existing work.
 
 \subsection{Analysis of the Proposed Approach}
-In section \ref{sec:recog} we can see that using an SVM is a pretty good baseline for the character recognition problem, obtaining an average accuracy of 91\% with a RBF kernel. Using this type of kernel seems to seems to lead to slightly better results rather then just using a linear kernel, but not by more than 1-2\%. One explanation for this would be that the data is already high dimensional (400 dimensions) and the data points lie in sufficiently different parts so that the separating hyperplanes work effectively, without needing a projection into the infinite dimensional space offered by the RBF kernel. 
+In Section \ref{sec:recog} we can see that using an SVM is a pretty good baseline for the character recognition problem, obtaining an average accuracy of 91\% with a RBF kernel. Using this type of kernel seems to seems to lead to slightly better results rather then just using a linear kernel, but not by more than 1-2\%. One explanation for this would be that the data is already high dimensional (400 dimensions) and the data points lie in sufficiently different parts so that the separating hyperplanes work effectively, without needing a projection into the infinite dimensional space offered by the RBF kernel. 
 
 Using neural networks leads to much better results. When using the pretraining approach with two stacked autoencoders, the accuracy reaches about $95.6\% \pm 0.3 \% $. Switching to using two layers of linear rectified units, even without pretraining, leads to a further improvement of two percent in accuracy, reaching $ 97.9\% \pm 1.2\% $. The 3 layered network has fewer neurons than the two layered one, but it still manages to give almost the same level of accuracy, $ 97.5\% \pm 1.7\% $, showing the advantages of using more layers, even if they are narrower. The best results are obtained using the the four layered neural network, which gives an accuracy of $ 98.5\% \pm 0.2\% $. 
 
 In the case of the character segmentation, the values of the parameter didn't matter that much. The difference between the best and the worst result was about 0.2. The number of features had the most influence, of $ 0.1\% $, on the F1 score, while the number of trees influenced it only by 0.01. The highest average was obtained for the values of 250 trees in the forest and 40 features chosen at each split, giving an F1 score of $ 87.936\% \pm 0.445$ on the validation set and a score of $ 91.99\% $ on the test set.  
 
-This seems to indicate that the number of features that are chosen at each split point is a more important parameter for random forests, while the number of trees used in the forest doesn't vary the results so much. This is in line with the theoretical basis of random forests\cite{breiman2001random}, which suggest that random forests are somewhat sensitive to the number of features used in them. 
+This seems to indicate that the number of features that are chosen at each split point is a more important parameter for random forests, while the number of trees used in the forest doesn't vary the results so much. This is in line with the theoretical basis of random forests \cite{breiman2001random}, which suggest that random forests are somewhat sensitive to the number of features used in them. 
 
 
 % todo
@@ -346,11 +346,11 @@ If we look at the confusion matrix for the character recognition problem, comput
 \item confusing 1 with I - 4 times
 \end{itemize} 
 
-These mistakes are easy to make: a comma and a period are very similar, especially in a noisy, low resolution environment. The lower and upper case letters O are again very similar to the digit 0, on some receipts there being no distinction between O and 0, only the context in which they are used. For monospace fonts, which some receipts use, the lack of difference between l, I, 1 is a well known problem, which is why many design books and human computer interaction studies recommend using other fonts\cite{chaparro2006examining}. 
+These mistakes are easy to make: a comma and a period are very similar, especially in a noisy, low resolution environment. The lower and upper case letters O are again very similar to the digit 0, on some receipts there being no distinction between O and 0, only the context in which they are used. For monospace fonts, which some receipts use, the lack of difference between l, I, 1 is a well known problem, which is why many design books and human computer interaction studies recommend using other fonts \cite{chaparro2006examining}. 
 
 If we look at the confusion matrix for the character segmentation problem, we see that it makes the mistake of not predicting a split more often than it does the opposite, so the model is more specific, rather then sensitive. 
 
-Specifity and sensitivity can be computed as\cite{Fawcett_2006}
+Specifity and sensitivity can be computed as \cite{Fawcett_2006}
 
 \[
     \text{sensitivity} = \frac{\text{true positives}}{\text{all positives}} = \frac{2546}{2546+363} = 87.52 \%
@@ -359,9 +359,9 @@ Specifity and sensitivity can be computed as\cite{Fawcett_2006}
     \text{specificity} = \frac{\text{true negatives}}{\text{all negatives}} = \frac{4556}{4556+255} =  94.70 \%
 \]
 
-Another good evaluation measure is the \textit{Area unde the ROC curve} (AUC)\cite{Fawcett_2006}. The \textit{ROC} (Receiver Operating Characteristic) curve is a plot of \textit{sensitivity} versus (1 - \textit{specificity}). Usually they are constructed from classifiers that instead of a label, return a score that can be converted into a label by thresholding. In the case of classifiers that return the class directly, the ROC curve has only one point, from where the AUC measure can be computed. 
+Another good evaluation measure is the \textit{Area under the ROC curve} (AUC) \cite{Fawcett_2006}. The \textit{ROC} (Receiver Operating Characteristic) curve is a plot of \textit{sensitivity} versus (1 - \textit{specificity}). Usually they are constructed from classifiers that instead of a label, return a score that can be converted into a label by thresholding. In the case of classifiers that return the class directly, the ROC curve has only one point, from where the AUC measure can be computed. 
 
-In our case, the AUC is 0.911, as computed from the graph in figure \ref{fig:roc}. 
+In our case, the AUC is 0.911, as computed from the graph in Figure \ref{fig:roc}. 
 
 
 \begin{figure}[h!]
@@ -373,11 +373,11 @@ ROC curve for the character segmentation problem}
 \end{figure}
 
 \subsection{Comparison to Related Work}
-If we compare the results of the character recognition problem with the ones obtained on the MNIST dataset\cite{lecun1998mnist}, we see that our error rates are much higher: around 1.5\% versus 0.23\% (obtained by using a deep and wide neural network on MNIST). There are several possible explanations for this. One is that MNIST has only ten classes (corresponding to the ten digits), so it is much easier for a classifier to assign the correct class to a data point, compared to our dataset, which has 74 distinct classes, of which many are similar (the digit 0 and the letters o and O, the digit 1 and the letter l). Another factor that makes MNIST easier to solve is the fact that it has 70000 datapoints in total, while our dataset contains only 7045 data points. This almost ten fold difference has a great contribution to the ability of the classifier to generalize. Even on the MNIST dataset, adding more data is beneficial, as show by Ciresan et al.\cite{Cire_an_2010}, who obtained one of the best results on MNIST by augmenting the dataset with artificial data generated by transforming the existing digits. Also, one of the state-of-the-art neural network that obtained these results on MNIST had 9 layers of 1000 neurons each, so it has a much greater representational power than our 4 layered network having 2000 neurons in total. 
+If we compare the results of the character recognition problem with the ones obtained on the MNIST dataset \cite{lecun1998mnist}, we see that our error rates are much higher: around 1.5\% versus 0.23\% (obtained by using a deep and wide neural network on MNIST). There are several possible explanations for this. One is that MNIST has only ten classes (corresponding to the ten digits), so it is much easier for a classifier to assign the correct class to a data point, compared to our dataset, which has 74 distinct classes, of which many are similar (the digit 0 and the letters o and O, the digit 1 and the letter l). Another factor that makes MNIST easier to solve is the fact that it has 70000 datapoints in total, while our dataset contains only 7045 data points. This almost ten fold difference has a great contribution to the ability of the classifier to generalize. Even on the MNIST dataset, adding more data is beneficial, as show by Ciresan et al. \cite{Cire_an_2010}, who obtained one of the best results on MNIST by augmenting the dataset with artificial data generated by transforming the existing digits. Also, one of the state-of-the-art neural network that obtained these results on MNIST had 9 layers of 1000 neurons each, so it has a much greater representational power than our 4 layered network having 2000 neurons in total. 
 
 The results obtained in \cite{kahraman2003license} and \cite{Franc_2005} for the character segmentation problem are a bit better than our results: 94.5\% and 96.7\% accuracy, compared to our 91.9\%. The difference between the two problems is that in their papers the number of characters in a licence plate is known and fixed, while lines in a receipt have varying lenghts. This prior knowledge used by them can explain the difference in results. 
 
-The paper by Janssen\cite{janssen2012receipts2go} deals with OCR on receipts, but they don't train the OCR engine for receipts, they just present a new approach for image normalization. In contrast, our approach improves the accuracy of the OCR engine by focusing on the character segmentation and recognition problem. 
+The paper by Janssen \cite{janssen2012receipts2go} deals with OCR on receipts, but they don't train the OCR engine for receipts, they just present a new approach for image normalization. In contrast, our approach improves the accuracy of the OCR engine by focusing on the character segmentation and recognition problem. 
 
 The best free OCR engine on the market, Tesseract, performs quite poorly. On the receipt seen in Figure \ref{fig:orig_image}, it produces the following text output:
 
